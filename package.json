@@ -1,0 +1,29 @@
+{
+  "name": "fmtis_ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ag-grid-community": "^28.1.1",
+    "ag-grid-vue3": "^28.1.1",
+    "axios": "^0.27.2",
+    "exceljs": "^4.3.0",
+    "file-saver": "^2.0.5",
+    "js-cookie": "^3.0.1",
+    "v-calendar": "^3.0.0-alpha.8",
+    "vue": "^3.2.37",
+    "vue-router": "^4.1.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^3.1.0",
+    "autoprefixer": "^10.4.12",
+    "postcss": "^8.4.17",
+    "tailwindcss": "^3.1.8",
+    "vite": "^3.1.0"
+  }
+}

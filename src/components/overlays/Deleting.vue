@@ -1,0 +1,309 @@
+<script setup>
+
+</script>
+
+<template>
+  <div class="absolute inset-0 w-full h-full flex justify-center items-center bg-gray-200 bg-opacity-50">
+    <div class="cube-wrapper">
+      <div class="cube-folding">
+        <span class="leaf1"></span>
+        <span class="leaf2"></span>
+        <span class="leaf3"></span>
+        <span class="leaf4"></span>
+      </div>
+      <span class="loading" data-name="Loading">Deleting</span>
+    </div>
+  </div>
+  
+  <!--  <div class="absolute inset-0 w-full h-full z-50 overflow-hidden bg-gray-50 opacity-75 flex flex-col justify-center items-center">-->
+  <!--    -->
+  <!--    <h2 class="text-center text-gray-600 text-lg font-semibold">Loading...</h2>-->
+  <!--    <p class="text-center text-gray-600">This may take a few seconds, please don't close this page.</p>-->
+  <!--  </div>-->
+</template>
+
+<style scoped>
+  @import url(https://fonts.googleapis.com/css?family=Archivo+Narrow);
+  
+  .cube-folding {
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    transform: rotate(45deg);
+    font-size: 0;
+  }
+  
+  .cube-folding span {
+    position: relative;
+    width: 25px;
+    height: 25px;
+    -webkit-transform: scale(1.1);
+    -moz-transform: scale(1.1);
+    transform: scale(1.1);
+    display: inline-block;
+  }
+  
+  .cube-folding span::before {
+    content: "";
+    background-color: #a855f7;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    width: 25px;
+    height: 25px;
+    -moz-transform-origin: 100% 100%;
+    -ms-transform-origin: 100% 100%;
+    -webkit-transform-origin: 100% 100%;
+    transform-origin: 100% 100%;
+    -webkit-animation: folding 2.5s infinite linear both;
+    -moz-animation: folding 2.5s infinite linear both;
+    animation: folding 2.5s infinite linear both;
+  }
+  
+  .cube-folding .leaf2 {
+    -webkit-transform: rotateZ(90deg) scale(1.1);
+    -moz-transform: rotateZ(90deg) scale(1.1);
+    transform: rotateZ(90deg) scale(1.1);
+  }
+  
+  .cube-folding .leaf2::before {
+    -webkit-animation-delay: 0.3s;
+    animation-delay: 0.3s;
+    background-color: #9c3df6;
+  }
+  
+  .cube-folding .leaf3 {
+    -webkit-transform: rotateZ(270deg) scale(1.1);
+    -moz-transform: rotateZ(270deg) scale(1.1);
+    transform: rotateZ(270deg) scale(1.1);
+  }
+  
+  .cube-folding .leaf3::before {
+    -webkit-animation-delay: 0.9s;
+    animation-delay: 0.9s;
+    background-color: #9c3df6;
+  }
+  
+  .cube-folding .leaf4 {
+    -webkit-transform: rotateZ(180deg) scale(1.1);
+    -moz-transform: rotateZ(180deg) scale(1.1);
+    transform: rotateZ(180deg) scale(1.1);
+  }
+  
+  .cube-folding .leaf4::before {
+    -webkit-animation-delay: 0.6s;
+    animation-delay: 0.6s;
+    background-color: #8f24f5;
+  }
+  
+  @-webkit-keyframes folding {
+    0%, 10% {
+      -webkit-transform: perspective(140px) rotateX(-180deg);
+      -moz-transform: perspective(140px) rotateX(-180deg);
+      transform: perspective(140px) rotateX(-180deg);
+      -webkit-opacity: 0;
+      -moz-opacity: 0;
+      opacity: 0;
+    }
+    
+    25%, 75% {
+      -webkit-transform: perspective(140px) rotateX(0deg);
+      -moz-transform: perspective(140px) rotateX(0deg);
+      transform: perspective(140px) rotateX(0deg);
+      -webkit-opacity: 1;
+      -moz-opacity: 1;
+      opacity: 1;
+    }
+    
+    90%, 100% {
+      -webkit-transform: perspective(140px) rotateY(180deg);
+      -moz-transform: perspective(140px) rotateY(180deg);
+      transform: perspective(140px) rotateY(180deg);
+      -webkit-opacity: 0;
+      -moz-opacity: 0;
+      opacity: 0;
+    }
+  }
+  
+  @-moz-keyframes folding {
+    0%, 10% {
+      -webkit-transform: perspective(140px) rotateX(-180deg);
+      -moz-transform: perspective(140px) rotateX(-180deg);
+      transform: perspective(140px) rotateX(-180deg);
+      -webkit-opacity: 0;
+      -moz-opacity: 0;
+      opacity: 0;
+    }
+    
+    25%, 75% {
+      -webkit-transform: perspective(140px) rotateX(0deg);
+      -moz-transform: perspective(140px) rotateX(0deg);
+      transform: perspective(140px) rotateX(0deg);
+      -webkit-opacity: 1;
+      -moz-opacity: 1;
+      opacity: 1;
+    }
+    
+    90%, 100% {
+      -webkit-transform: perspective(140px) rotateY(180deg);
+      -moz-transform: perspective(140px) rotateY(180deg);
+      transform: perspective(140px) rotateY(180deg);
+      -webkit-opacity: 0;
+      -moz-opacity: 0;
+      opacity: 0;
+    }
+  }
+  
+  @-ms-keyframes folding {
+    0%, 10% {
+      -webkit-transform: perspective(140px) rotateX(-180deg);
+      -moz-transform: perspective(140px) rotateX(-180deg);
+      transform: perspective(140px) rotateX(-180deg);
+      -webkit-opacity: 0;
+      -moz-opacity: 0;
+      opacity: 0;
+    }
+    
+    25%, 75% {
+      -webkit-transform: perspective(140px) rotateX(0deg);
+      -moz-transform: perspective(140px) rotateX(0deg);
+      transform: perspective(140px) rotateX(0deg);
+      -webkit-opacity: 1;
+      -moz-opacity: 1;
+      opacity: 1;
+    }
+    
+    90%, 100% {
+      -webkit-transform: perspective(140px) rotateY(180deg);
+      -moz-transform: perspective(140px) rotateY(180deg);
+      transform: perspective(140px) rotateY(180deg);
+      -webkit-opacity: 0;
+      -moz-opacity: 0;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes folding {
+    0%, 10% {
+      -webkit-transform: perspective(140px) rotateX(-180deg);
+      -moz-transform: perspective(140px) rotateX(-180deg);
+      transform: perspective(140px) rotateX(-180deg);
+      -webkit-opacity: 0;
+      -moz-opacity: 0;
+      opacity: 0;
+    }
+    
+    25%, 75% {
+      -webkit-transform: perspective(140px) rotateX(0deg);
+      -moz-transform: perspective(140px) rotateX(0deg);
+      transform: perspective(140px) rotateX(0deg);
+      -webkit-opacity: 1;
+      -moz-opacity: 1;
+      opacity: 1;
+    }
+    
+    90%, 100% {
+      -webkit-transform: perspective(140px) rotateY(180deg);
+      -moz-transform: perspective(140px) rotateY(180deg);
+      transform: perspective(140px) rotateY(180deg);
+      -webkit-opacity: 0;
+      -moz-opacity: 0;
+      opacity: 0;
+    }
+  }
+  
+  .cube-wrapper {
+    width: 100px;
+    height: 100px;
+    text-align: center;
+  }
+  
+  .loading:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -20px;
+    margin: auto;
+    width: 90px;
+    height: 6px;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5);
+    -webkit-filter: blur(2px);
+    filter: blur(2px);
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    border-radius: 100%;
+    -webkit-animation: shadow 0.5s ease infinite alternate;
+    -moz-animation: shadow 0.5s ease infinite alternate;
+    animation: shadow 0.5s ease infinite alternate;
+  }
+  
+  .cube-wrapper .loading {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    display: block;
+    color: #a855f7;
+    position: relative;
+    top: 25px;
+    z-index: 2;
+    -webkit-animation: text 0.5s ease infinite alternate;
+    -moz-animation: text 0.5s ease infinite alternate;
+    animation: text 0.5s ease infinite alternate;
+  }
+  
+  @-webkit-keyframes text {
+    100% {
+      top: 35px;
+    }
+  }
+  
+  @-moz-keyframes text {
+    100% {
+      top: 35px;
+    }
+  }
+  
+  @-ms-keyframes text {
+    100% {
+      top: 35px;
+    }
+  }
+  
+  @keyframes text {
+    100% {
+      top: 35px;
+    }
+  }
+  
+  @-webkit-keyframes shadow {
+    100% {
+      bottom: -18px;
+      width: 100px;
+    }
+  }
+  
+  @-moz-keyframes shadow {
+    100% {
+      bottom: -18px;
+      width: 100px;
+    }
+  }
+  
+  @-ms-keyframes shadow {
+    100% {
+      bottom: -18px;
+      width: 100px;
+    }
+  }
+  
+  @keyframes shadow {
+    100% {
+      bottom: -18px;
+      width: 100px;
+    }
+  }
+</style>
