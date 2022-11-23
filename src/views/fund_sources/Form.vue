@@ -1,6 +1,7 @@
 <script setup>
-  import {  ref, watch, onMounted } from 'vue';
-  import axios from 'axios';
+  import { ref, watch, onMounted } from 'vue';
+  import { useGate } from '../../composables/gate';
+  import { useDB } from '../../composables/db';
   
   import FormGeneralError from '../../components/form_controls/GeneralError.vue';
   import FormFieldError from '../../components/form_controls/FieldError.vue';
@@ -8,13 +9,15 @@
   import FormText from '../../components/form_controls/Text.vue';
   import FormNumber from '../../components/form_controls/Number.vue';
   import FormSelect from '../../components/form_controls/Select.vue';
-  import BtnPrimary from '../../components/buttons/Primary.vue';
-  import BtnNeutral from '../../components/buttons/Neutral.vue';
+  import BtnIcon from '../../components/buttons/Icon.vue';
   import Loading from '../../components/overlays/Loading.vue';
   import Saving from '../../components/overlays/Saving.vue';
   
   const props = defineProps(['data']);
-  const emits = defineEmits(['cancel', 'created', 'updated']);
+  const emits = defineEmits(['return', 'created', 'updated', 'alert']);
+
+  const { getOffices } = useGate();
+  const { getRecord, createRecord, updateRecord } = useDB();
   
   const form_data = ref({
     name: '',
@@ -29,70 +32,71 @@
   
   const form_errors = ref([]);
   
-  const overlay = ref({
-    show: false,
-    component: '',
-  });
-  
-  const loadFundSource = async id => {
-    overlay.value.component = shallowRef(Loading);
-    overlay.value.show = true;
+  const overlay = ref('');
+
+  if (props.data.id) {
+    overlay.value = 'loading';
+    await getRecord(`${import.meta.env.VITE_API_URL}/fund_sources/${props.data.id}`, response => form_data.value = response.data);
+    overlay.value = '';
+  }
+
+  getRecord(`${import.meta.env.VITE_PORTAL_API_URL}/offices`, response => {
+    const temp_offices = getOffices(['fund_sources:manage', props.data.id ? 'fund_sources:update' : 'fund_sources:create']);
     
-    await axios.get(`${import.meta.env.VITE_API_URL}/fund_sources/${id}`)
-      .then(response => form_data.value = response.data);
-  
-    overlay.value.show = false;
-  };
+    response.data.forEach(office => {
+      if (temp_offices.includes(office.id)) {
+        form_options.value.offices.push({
+          value: office.id,
+          label: office.name + ' (' + office.short_name + ')',
+        });
+      }
+    });
+
+    if (props.data.id === undefined) form_data.value.office_id = form_options.value.offices[0].value;
+  });
   
   const save = async () => {
     form_errors.value = [];
-    overlay.value.component = shallowRef(Saving);
-    overlay.value.show = true;
-  
-    axios.interceptors.response.use(response => response, error => {
-      if (error.response.status === 400) {
-        form_errors.value = error.response.data;
-      }
-  
-      return Promise.reject(error);
-    });
+    overlay.value = 'saving';
     
     if (form_data.value.id) {
-      await axios.put(`${import.meta.env.VITE_API_URL}/fund_sources/${form_data.value.id}`, form_data.value)
-        .then(response => emits('updated', response.data));
+      await updateRecord(`${import.meta.env.VITE_API_URL}/fund_sources/${form_data.value.id}`, form_data.value, response => {
+          emits('updated', response.data);
+          emits('alert', {
+            type: 'success',
+            message: 'Fund source has been updated.',
+          });
+      }, error => {
+        if (error.response.status === 400) {
+          form_errors.value = error.response.data;
+        }
+      });
     } else {
-      await axios.post(`${import.meta.env.VITE_API_URL}/fund_sources`, form_data.value)
-        .then(response => emits('created', response.data));
+      await createRecord(`${import.meta.env.VITE_API_URL}/fund_sources`, form_data.value, response => {
+        emits('created', response.data);
+          emits('alert', {
+            type: 'success',
+            message: 'Fund source has been created.',
+          });
+      }, error => {
+        if (error.response.status === 400) {
+          form_errors.value = error.response.data;
+        }
+      });
     }
     
-    overlay.value.show = false;
+    overlay.value = '';
   };
-  
-  onMounted(async () => {
-    form_options.value.offices = props.data.offices.map(office => {
-          return {
-            value: office.id,
-            label: office.name + ' (' + office.short_name + ')',
-          }
-        });
-    
-    if (props.data.id) {
-      await loadFundSource(props.data.id);
-    } else {
-      form_data.value.office_id = form_options.value.offices[0].value;
-    }
-  });
-  
-  watch(() => props.data.id, id => {
-    loadFundSource(id);
-  });
 </script>
 
 <template>
   <div class="w-full h-full relative">
-    <div class="flex flex-col space-y-6 p-6">
-      <p class="text-gray-600 text-center font-medium border-b">{{ props.data.id ? 'Update Fund Source' : 'Create Fund Source' }}</p>
-  
+    <div class="flex justify-end px-3 py-2">
+      <BtnIcon v-if="props.data.id" @click="$emit('return', props.data.id)" :icon="'fas fa-left-long'" class="text-gray-500 hover:text-primary-600" title="Return" />
+      <BtnIcon @click="save" :icon="'fas fa-save'" class="text-gray-500 hover:text-primary-600" title="Save" />
+    </div>
+
+    <div class="flex flex-col space-y-6 px-6">  
       <form-general-error v-if="form_errors.hasOwnProperty('general')" :text="form_errors.general" />
   
       <form @submit.prevent>
@@ -120,15 +124,11 @@
             <form-select v-model:value="form_data.office_id" :options="form_options.offices" />
             <form-field-error v-if="form_errors.hasOwnProperty('office_id')" :text="form_errors.office_id[0]" />
           </div>
-      
-          <div class="flex justify-end space-x-6">
-            <btn-neutral @click="$emit('cancel')" :text="'Cancel'" :icon="'fas fa-xmark'" />
-            <btn-primary @click="save" :text="'Save'" :icon="'fas fa-save'" />
-          </div>
         </div>
       </form>
     </div>
     
-    <component v-if="overlay.show" :is="overlay.component" />
+    <Saving v-if="overlay === 'saving'" />
+    <Loading v-if="overlay === 'loading'" />
   </div>
 </template>

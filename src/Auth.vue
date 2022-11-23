@@ -16,7 +16,7 @@
         <router-link :to="{ name: 'apps' }">APPs</router-link>
       </div>
     </div>
-    <div class="flex-grow bg-primary-100 h-full max-h-full overflow-hidden px-6 pt-12 pb-6">
+    <div class="flex-grow bg-primary-50 h-full max-h-full overflow-hidden px-6 pt-12 pb-6">
       <router-view />
     </div>
   </div>

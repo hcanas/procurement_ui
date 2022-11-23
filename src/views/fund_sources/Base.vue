@@ -1,7 +1,6 @@
 <script setup>
   import { ref, watch } from 'vue';
   import { useGate } from '../../composables/gate';
-  import { useFormatter } from '../../composables/formatter';
   import { useDB } from '../../composables/db';
   
   import "ag-grid-community/styles/ag-grid.css";
@@ -13,17 +12,19 @@
   import PageHeader from '../../components/PageHeader.vue';
   import Search from '../../components/form_controls/Search.vue';
   import Select from '../../components/form_controls/Select.vue';
-  import BtnIcon from '../../components/buttons/Icon.vue';
+  import BtnPrimary from '../../components/buttons/Primary.vue';
 
   import DrawerContainer from '../../components/drawer/Container.vue';
   import DrawerHeader from '../../components/drawer/Header.vue';
   import Details from './Details.vue';
   import Form from './Form.vue';
 
+  import AlertSuccess from '../../components/alerts/Success.vue';
+  import AlertError from '../../components/alerts/Error.vue';
+
   document.title = 'Fund Sources';
 
-  const { hasPermission, getOffices } = useGate();
-  const { formatDateTime, formatCurrency } = useFormatter();
+  const { getOffices } = useGate();
   const { getRecord } = useDB();
 
   const offices = getOffices(['fund_sources:manage', 'fund_sources:view']);
@@ -97,6 +98,12 @@
     data: null,
   });
 
+  const alert = ref({
+    show: false,
+    type: '',
+    message: '',
+  });
+
   const loadData = year => {
     ag_grid.value.api.showLoadingOverlay();
 
@@ -115,9 +122,32 @@
     loadData(ag_grid.value.year);
   };
 
-  const showDetails = async (id) => {
+  const resetDrawer = () => {
+    drawer.value.component = 'placeholder';
+    drawer.value.data = null;
+    drawer.value.title = '';
+    drawer.value.show = false;
+  };
+
+  const resetAlert = () => {
+    alert.value = {
+      show: false,
+      type: '',
+      message: '',
+    };
+  };
+
+  const showAlert = new_alert => {
+    resetAlert();
+    alert.value = {
+      show: true,
+      type: new_alert.type,
+      message: new_alert.message,
+    };
+  };
+
+  const showDetails = id => {
     resetDrawer();
-    await getRecord(`${import.meta.env.VITE_PORTAL_API_URL}/users/${id}`, response => data.user = response.data);
 
     drawer.value.title = 'Fund Source Details';
     drawer.value.component = 'details';
@@ -126,36 +156,25 @@
   };
   
   const showForm = id => {
+    resetDrawer();
+    
     drawer.value.title = id ? 'Update Fund Source' : 'Create Fund Source';
     drawer.value.component = 'form';
     drawer.value.data = { id };
     drawer.value.show = true;
   };
   
-  // const showDelete = id => {
-  //   drawer.value.data = { id, offices: offices.value };
-  //   drawer.value.component = shallowRef(DeleteDialog);
-  //   drawer.value.show = true;
-  // };
-
-  const resetDrawer = () => {
-    drawer.value.show = false;
-    drawer.value.component = '';
-    drawer.value.data = null;
-    drawer.value.title = '';
+  const createdFundSource = new_data => {
+    new_data.office = offices.value.find(office => office.id === new_data.office_id);
+    ag_grid.value.api.applyTransaction({ add: [new_data], addIndex: 0 });
+    showDetails(new_data.id);
   };
   
-  // const createdFundSource = new_data => {
-  //   new_data.office = offices.value.find(office => office.id === new_data.office_id);
-  //   ag_grid.value.api.applyTransaction({ add: [new_data], addIndex: 0 });
-  //   resetDrawer();
-  // };
-  
-  // const updatedFundSource = new_data => {
-  //   new_data.office = offices.value.find(office => office.id === new_data.office_id);
-  //   ag_grid.value.api.applyTransaction({ update: [new_data] });
-  //   resetDrawer();
-  // };
+  const updatedFundSource = new_data => {
+    new_data.office = offices.value.find(office => office.id === new_data.office_id);
+    ag_grid.value.api.applyTransaction({ update: [new_data] });
+    showDetails(new_data.id);
+  };
   
   const deletedFundSource = id => {
     ag_grid.value.row_data.some((fund_source, index) => {
@@ -164,12 +183,12 @@
         return true;
       }
     });
-    
+
     resetDrawer();
   };
   
   await getRecord(`${import.meta.env.VITE_PORTAL_API_URL}/offices`, response => {
-      offices.value = offices.map(office_id => response.data.find(data => data.id === office_id));
+    offices.value = offices.map(office_id => response.data.find(data => data.id === office_id));
   });
   
   watch(() => ag_grid.value.filter_text, text => ag_grid.value.api.setQuickFilter(text));
@@ -177,12 +196,24 @@
 </script>
 
 <template>
+  <AlertSuccess 
+    v-if="alert.show && alert.type === 'success'"
+    :message="alert.message"
+    @close="resetAlert"
+  />
+
+  <AlertError 
+    v-if="alert.show && alert.type === 'error'"
+    :message="alert.message"
+    @close="resetAlert"
+  />
+
   <div class="w-full h-full flex items-stretch">
     <div class="flex-grow flex flex-col px-12">
       <PageHeader :title="'Fund Sources'">
         <template #controls>
           <div class="flex items-center space-x-2">
-            <BtnIcon @click="showForm()" :icon="'fas fa-folder-plus'" class="bg-white text-gray-600 hover:text-primary-600" title="Add" />
+            <BtnPrimary @click="showForm()" :icon="'fas fa-folder-plus'" :text="'Add'" title="Add" />
             <Search v-model:value="ag_grid.filter_text" />
             <Select v-model:value="ag_grid.year" :options="ag_grid.years" />
           </div>
@@ -203,7 +234,10 @@
       />
     </div>
     
-    <DrawerContainer :show="drawer.show" :controls="drawer.controls">
+    <DrawerContainer 
+      :show="drawer.show" 
+      :controls="drawer.controls"
+    >
       <DrawerHeader
         v-if="drawer.title" 
         :title="drawer.title"
@@ -212,13 +246,21 @@
 
       <Details 
         v-if="drawer.component === 'details'" 
-        :data="drawer.data" 
+        :data="drawer.data"
+        :key="drawer.data.id"
         @edit="showForm"
+        @deleted="deletedFundSource"
+        @alert="showAlert"
       />
 
       <Form 
         v-if="drawer.component === 'form'"
         :data="drawer.data"
+        :key="drawer.data.id"
+        @created="createdFundSource"
+        @updated="updatedFundSource"
+        @return="showDetails"
+        @alert="showAlert"
       />
     </DrawerContainer>
   </div>

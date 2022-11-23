@@ -118,7 +118,7 @@ router.beforeResolve(async (to, from) => {
         }
       });
   
-    // catch all 403, 404, 409, and 500 errors
+    // catch all 403, 404, and 500 errors
     axios.interceptors.response.use(response => response, error => {
       switch (error.response.status) {
         case 401:
@@ -127,9 +127,7 @@ router.beforeResolve(async (to, from) => {
       
         case 403:
         case 404:
-        case 409:
         case 500:
-          console.log(error.response.data);
           router.push(`/${error.response.status}`);
           break;
       }

@@ -14,12 +14,6 @@
       <span class="loading" data-name="Loading">Saving</span>
     </div>
   </div>
-  
-  <!--  <div class="absolute inset-0 w-full h-full z-50 overflow-hidden bg-gray-50 opacity-75 flex flex-col justify-center items-center">-->
-  <!--    -->
-  <!--    <h2 class="text-center text-gray-600 text-lg font-semibold">Loading...</h2>-->
-  <!--    <p class="text-center text-gray-600">This may take a few seconds, please don't close this page.</p>-->
-  <!--  </div>-->
 </template>
 
 <style scoped>
