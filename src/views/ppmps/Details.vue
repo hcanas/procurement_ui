@@ -9,8 +9,8 @@
   import TagNegative from '../../components/tags/Negative.vue';
   import DeleteDialog from './details/ConfirmDelete.vue';
   import Evaluation from './details/Evaluation.vue';
-  import Loading from '../../components/overlays/Loading.vue';
-  import Deleting from '../../components/overlays/Deleting.vue';
+  import Loading from '../../components/loaders/Loading.vue';
+  import Deleting from '../../components/loaders/Deleting.vue';
   import FormSelect from '../../components/form_controls/Select.vue';
   
   const props = defineProps(['id']);

@@ -4,8 +4,8 @@
   
   import BtnNeutral from '../../components/buttons/Neutral.vue';
   import BtnDanger from '../../components/buttons/Danger.vue';
-  import Loading from '../../components/overlays/Loading.vue';
-  import Deleting from '../../components/overlays/Deleting.vue';
+  import Loading from '../../components/loaders/Loading.vue';
+  import Deleting from '../../components/loaders/Deleting.vue';
   
   const props = defineProps(['data']);
   const emits = defineEmits(['deleted', 'cancel']);

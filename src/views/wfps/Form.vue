@@ -15,8 +15,8 @@
   import FormSuggestion from '../../components/form_controls/Suggestion.vue';
   import BtnPrimary from '../../components/buttons/Primary.vue';
   import BtnNeutral from '../../components/buttons/Neutral.vue';
-  import Loading from '../../components/overlays/Loading.vue';
-  import Saving from '../../components/overlays/Saving.vue';
+  import Loading from '../../components/loaders/Loading.vue';
+  import Saving from '../../components/loaders/Saving.vue';
   
   const props = defineProps(['id']);
   const emits = defineEmits(['cancel', 'created', 'updated']);

@@ -6,17 +6,19 @@
   import "ag-grid-community/styles/ag-grid.css";
   import "ag-grid-community/styles/ag-theme-material.min.css";
   import { AgGridVue } from "ag-grid-vue3";
-  import AgGridLoadingComponent from '../../components/overlays/Loading.vue';
-  import AgGridActionsCol from './AgGridActionsCol.vue';
+  import AgGridLoadingComponent from '../../components/loaders/Loading.vue';
+  // import AgGridActionsCol from './AgGridActionsCol.vue';
   
   import PageHeader from '../../components/PageHeader.vue';
   import Search from '../../components/form_controls/Search.vue';
   import Select from '../../components/form_controls/Select.vue';
   import BtnPrimary from '../../components/buttons/Primary.vue';
 
+  import Popover from '../../components/popovers/Details.vue';
+  import Details from './Details.vue';
+
   import DrawerContainer from '../../components/drawer/Container.vue';
   import DrawerHeader from '../../components/drawer/Header.vue';
-  import Details from './Details.vue';
   import Form from './Form.vue';
 
   import AlertSuccess from '../../components/alerts/Success.vue';
@@ -72,13 +74,13 @@
         sortable: true,
         flex: 2,
       },
-      {
-        width: 100,
-        cellRenderer: AgGridActionsCol,
-        cellRendererParams: {
-          clicked: id => showDetails(id),
-        },
-      },
+      // {
+      //   width: 100,
+      //   cellRenderer: AgGridActionsCol,
+      //   cellRendererParams: {
+      //     clicked: id => showDetails(id),
+      //   },
+      // },
     ],
     filter_text: '',
     year: new Date().getFullYear(),
@@ -88,6 +90,12 @@
       { label: 2024, value: 2024 },
       { label: 2025, value: 2025 },
     ],
+  });
+
+  const popover = ref({
+    show: false,
+    title: '',
+    data: null,
   });
   
   const drawer = ref({
@@ -122,6 +130,13 @@
     loadData(ag_grid.value.year);
   };
 
+  const resetPopover = () => {
+    popover.value = {
+      show: false,
+      data: null,
+    };
+  };
+
   const resetDrawer = () => {
     drawer.value.component = 'placeholder';
     drawer.value.data = null;
@@ -146,13 +161,14 @@
     };
   };
 
-  const showDetails = id => {
-    resetDrawer();
-
-    drawer.value.title = 'Fund Source Details';
-    drawer.value.component = 'details';
-    drawer.value.data = { id };
-    drawer.value.show = true;
+  const showDetails = data => {
+    console.log(data);
+    resetPopover();
+    popover.value = {
+      show: true,
+      title: 'Fund Source Details',
+      data,
+    };
   };
   
   const showForm = id => {
@@ -167,13 +183,15 @@
   const createdFundSource = new_data => {
     new_data.office = offices.value.find(office => office.id === new_data.office_id);
     ag_grid.value.api.applyTransaction({ add: [new_data], addIndex: 0 });
-    showDetails(new_data.id);
+    resetDrawer();
   };
   
   const updatedFundSource = new_data => {
     new_data.office = offices.value.find(office => office.id === new_data.office_id);
     ag_grid.value.api.applyTransaction({ update: [new_data] });
-    showDetails(new_data.id);
+    resetDrawer();
+
+    if (popover.value.data.id === new_data.id) popover.value.data = new_data;
   };
   
   const deletedFundSource = id => {
@@ -185,6 +203,7 @@
     });
 
     resetDrawer();
+    resetPopover();
   };
   
   await getRecord(`${import.meta.env.VITE_PORTAL_API_URL}/offices`, response => {
@@ -193,6 +212,10 @@
   
   watch(() => ag_grid.value.filter_text, text => ag_grid.value.api.setQuickFilter(text));
   watch(() => ag_grid.value.year, year => loadData(year));
+
+  const clicked = params => {
+    console.log(params);
+  };
 </script>
 
 <template>
@@ -207,6 +230,20 @@
     :message="alert.message"
     @close="resetAlert"
   />
+
+  <Popover 
+    v-if="popover.show"
+    :title="popover.title"
+    @close="resetPopover"
+  >
+    <Details 
+      :data="popover.data"
+      :key="popover.data"
+      @edit="showForm"
+      @deleted="deletedFundSource"
+      @alert="showAlert"
+    />
+  </Popover>
 
   <div class="w-full h-full flex items-stretch">
     <div class="flex-grow flex flex-col px-12">
@@ -223,6 +260,7 @@
       <AgGridVue
         class="w-full flex-grow ag-theme-material"
         @grid-ready="onGridReady"
+        @row-double-clicked="params => showDetails(params.data)"
         :rowData="ag_grid.row_data"
         :getRowId="params => params.data.id"
         :columnDefs="ag_grid.col_defs"
@@ -230,7 +268,6 @@
         :paginationPageSize="20"
         :loadingOverlayComponent="AgGridLoadingComponent"
         :suppressCellFocus="true"
-        :enableCellTextSelection=true
       />
     </div>
     
@@ -242,15 +279,6 @@
         v-if="drawer.title" 
         :title="drawer.title"
         @close="resetDrawer"
-      />
-
-      <Details 
-        v-if="drawer.component === 'details'" 
-        :data="drawer.data"
-        :key="drawer.data.id"
-        @edit="showForm"
-        @deleted="deletedFundSource"
-        @alert="showAlert"
       />
 
       <Form 

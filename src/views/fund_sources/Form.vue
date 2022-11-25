@@ -9,12 +9,12 @@
   import FormText from '../../components/form_controls/Text.vue';
   import FormNumber from '../../components/form_controls/Number.vue';
   import FormSelect from '../../components/form_controls/Select.vue';
-  import BtnIcon from '../../components/buttons/Icon.vue';
-  import Loading from '../../components/overlays/Loading.vue';
-  import Saving from '../../components/overlays/Saving.vue';
+  import BtnPrimary from '../../components/buttons/Primary.vue';
+  import Loading from '../../components/loaders/Loading.vue';
+  import Saving from '../../components/loaders/Saving.vue';
   
   const props = defineProps(['data']);
-  const emits = defineEmits(['return', 'created', 'updated', 'alert']);
+  const emits = defineEmits(['created', 'updated', 'alert']);
 
   const { getOffices } = useGate();
   const { getRecord, createRecord, updateRecord } = useDB();
@@ -91,12 +91,7 @@
 
 <template>
   <div class="w-full h-full relative">
-    <div class="flex justify-end px-3 py-2">
-      <BtnIcon v-if="props.data.id" @click="$emit('return', props.data.id)" :icon="'fas fa-left-long'" class="text-gray-500 hover:text-primary-600" title="Return" />
-      <BtnIcon @click="save" :icon="'fas fa-save'" class="text-gray-500 hover:text-primary-600" title="Save" />
-    </div>
-
-    <div class="flex flex-col space-y-6 px-6">  
+    <div class="flex flex-col space-y-6 p-6">  
       <form-general-error v-if="form_errors.hasOwnProperty('general')" :text="form_errors.general" />
   
       <form @submit.prevent>
@@ -126,6 +121,10 @@
           </div>
         </div>
       </form>
+
+      <div class="text-right">
+        <BtnPrimary @click="save" :icon="'fas fa-save'" :text="'Save'" title="Save" />
+      </div>
     </div>
     
     <Saving v-if="overlay === 'saving'" />

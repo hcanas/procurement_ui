@@ -8,7 +8,7 @@
   import "ag-grid-community/styles/ag-grid.css";
   import "ag-grid-community/styles/ag-theme-material.min.css";
   import { AgGridVue } from "ag-grid-vue3";
-  import AgGridLoadingComponent from '../../components/overlays/Loading.vue';
+  import AgGridLoadingComponent from '../../components/loaders/Loading.vue';
   import StatusCol from './base/StatusCol.vue';
   import ActionsCol from './base/ActionsCol.vue';
   import CustomForm from './Form.vue';

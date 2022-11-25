@@ -4,9 +4,10 @@
   import { useFormatter } from '../../composables/formatter';
   import { useDB } from '../../composables/db';
 
-  import BtnIcon from '../../components/buttons/Icon.vue';
+  import BtnNeutral from '../../components/buttons/Neutral.vue';
+  import BtnDanger from '../../components/buttons/Danger.vue';
   import DeleteDialog from '../../components/dialogs/Delete.vue';
-  import Deleting from '../../components/overlays/Deleting.vue';
+  import Deleting from '../../components/loaders/Deleting.vue';
 
   const props = defineProps(['data']);
   const emits = defineEmits(['edit', 'deleted', 'alert']);
@@ -15,15 +16,12 @@
   const { formatDateTime, formatCurrency } = useFormatter();
   const { getRecord, deleteRecord } = useDB();
 
-  const fund_source = ref({});
-
-  await getRecord(`${import.meta.env.VITE_API_URL}/fund_sources/${props.data.id}`, response => fund_source.value = response.data);
-  getRecord(`${import.meta.env.VITE_PORTAL_API_URL}/offices/${fund_source.value.office_id}`, response => fund_source.value.office = response.data);
-  getRecord(`${import.meta.env.VITE_PORTAL_API_URL}/users/${fund_source.value.last_modified_by_id}`, response => fund_source.value.last_modified_by = response.data);
+  getRecord(`${import.meta.env.VITE_PORTAL_API_URL}/offices/${props.data.office_id}`, response => props.data.office = response.data);
+  getRecord(`${import.meta.env.VITE_PORTAL_API_URL}/users/${props.data.last_modified_by_id}`, response => props.data.last_modified_by = response.data);
 
   const controls = {
-    edit: hasPermission(['fund_sources:manage', 'fund_sources:update'], fund_source.value.office_id),
-    delete: hasPermission(['fund_sources:manage', 'fund_sources:delete'], fund_source.value.office_id),
+    edit: hasPermission(['fund_sources:manage', 'fund_sources:update'], props.data.office_id),
+    delete: hasPermission(['fund_sources:manage', 'fund_sources:delete'], props.data.office_id),
   };
 
   const deleting = ref(false);
@@ -52,12 +50,7 @@
 
 <template>
   <div class="w-full h-full relative">
-    <div class="flex justify-end px-3 py-2">
-      <BtnIcon v-if="controls.edit" @click="$emit('edit', data.id)" :icon="'fas fa-pencil'" class="text-gray-500 hover:text-blue-600" title="Edit" />
-      <BtnIcon v-if="controls.delete" @click="showDeleteForm = true" :icon="'fas fa-trash'" class="text-gray-500 hover:text-red-600" title="Delete" />
-    </div>
-
-    <div class="flex flex-col space-y-6 max-h-full px-6 py-2 overflow-y-auto">
+    <div class="flex flex-col space-y-6 max-h-full px-6 py-4 overflow-y-auto">
       <DeleteDialog
         v-if="showDeleteForm"
         @cancel="showDeleteForm = false"
@@ -67,42 +60,47 @@
       <div class="flex flex-col space-y-6">
         <div class="flex flex-col space-y-1">
           <span class="text-gray-600 text-xs uppercase font-bold">Year</span>
-          <span class="text-sm text-gray-600">{{ fund_source.year }}</span>
+          <span class="text-sm text-gray-600">{{ data.year }}</span>
         </div>
         
         <div class="flex flex-col space-y-1">
           <span class="text-gray-600 text-xs uppercase font-bold">Name</span>
-          <span class="text-sm text-gray-600">{{ fund_source.name }}</span>
+          <span class="text-sm text-gray-600">{{ data.name }}</span>
         </div>
         
         <div class="flex flex-col space-y-1">
           <span class="text-gray-600 text-xs uppercase font-bold">Amount</span>
-          <span class="text-sm text-gray-600">{{ formatCurrency(fund_source.amount) }}</span>
+          <span class="text-sm text-gray-600">{{ formatCurrency(data.amount) }}</span>
         </div>
         
         <div class="flex flex-col space-y-1">
           <span class="text-gray-600 text-xs uppercase font-bold">Allocated</span>
-          <span class="text-sm text-gray-600">{{ formatCurrency(fund_source.allocated) }}</span>
+          <span class="text-sm text-gray-600">{{ formatCurrency(data.allocated) }}</span>
         </div>
         
         <div class="flex flex-col space-y-1">
           <span class="text-gray-600 text-xs uppercase font-bold">Remaining</span>
-          <span class="text-sm text-gray-600">{{ formatCurrency(fund_source.amount - fund_source.allocated) }}</span>
+          <span class="text-sm text-gray-600">{{ formatCurrency(data.amount - data.allocated) }}</span>
         </div>
         
         <div class="flex flex-col space-y-1">
           <span class="text-gray-600 text-xs uppercase font-bold">Office</span>
-          <span class="text-sm text-gray-600">{{ fund_source.office?.name }}</span>
+          <span class="text-sm text-gray-600">{{ data.office?.name }}</span>
         </div>
         
         <div class="flex flex-col space-y-1">
           <span class="text-gray-600 text-xs uppercase font-bold">Last Modified By</span>
           <span class="text-sm text-gray-600 flex flex-col">
-            <span>{{ fund_source.last_modified_by?.name }}</span>
-            <span>{{ formatDateTime(fund_source.updated_at) }}</span>
+            <span>{{ data.last_modified_by?.name }}</span>
+            <span>{{ formatDateTime(data.updated_at) }}</span>
           </span>
         </div>
       </div>
+    </div>
+
+    <div class="flex justify-end space-x-3 px-3 py-2">
+      <BtnNeutral v-if="controls.edit" @click="$emit('edit', data.id)" :icon="'fas fa-pencil'" :text="'Edit'" />
+      <BtnDanger v-if="controls.delete" @click="showDeleteForm = true" :icon="'fas fa-trash'" :text="'Delete'" />
     </div>
 
     <Deleting v-if="deleting" />

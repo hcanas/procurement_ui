@@ -6,7 +6,7 @@
 </script>
 
 <template>
-  <div class="absolute top-16 right-6 z-50 w-[28rem] bg-white p-1.5 rounded-lg shadow">
+  <div class="absolute top-6 right-6 z-50 w-[28rem] bg-white p-1.5 rounded-lg shadow">
     <div class="flex justify-between items-stretch space-x-3">
       <span class="border-2 border-green-600 rounded"></span>
       <span class="flex-grow flex flex-col py-1">
